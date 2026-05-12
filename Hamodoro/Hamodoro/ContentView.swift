@@ -8,17 +8,15 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var timerStore: PomodoroTimerStore
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        HamodoroPopoverView(timerStore: timerStore)
     }
 }
 
-#Preview {
-    ContentView()
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(timerStore: PomodoroTimerStore())
+    }
 }

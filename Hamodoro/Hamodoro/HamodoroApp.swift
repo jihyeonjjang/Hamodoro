@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct HamodoroApp: App {
+    @StateObject private var timerStore = PomodoroTimerStore()
+
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+        MenuBarExtra {
+            ContentView(timerStore: timerStore)
+        } label: {
+            Label(timerStore.statusText, systemImage: timerStore.isRunning ? "timer" : "timer.circle")
         }
+        .menuBarExtraStyle(.window)
     }
 }
