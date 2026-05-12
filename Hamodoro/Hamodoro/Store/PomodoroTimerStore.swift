@@ -10,6 +10,11 @@ import Foundation
 
 @MainActor
 final class PomodoroTimerStore: ObservableObject {
+    private enum DefaultsKey {
+        static let focusMinutes = "focusMinutes"
+        static let breakMinutes = "breakMinutes"
+    }
+
     enum Phase {
         case idle
         case focus
@@ -30,18 +35,22 @@ final class PomodoroTimerStore: ObservableObject {
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var remainingSeconds: Int
     @Published private(set) var isRunning = false
+    @Published private(set) var focusMinutes: Int
+    @Published private(set) var breakMinutes: Int
     @Published var selectedCycleCount = 1
 
-    private let focusDuration: Int
-    private let breakDuration: Int
     private var timer: Timer?
     private var plannedPhases: [Phase] = []
     private var currentPhaseIndex = 0
 
-    init(focusDuration: Int = 25 * 60, breakDuration: Int = 5 * 60) {
-        self.focusDuration = focusDuration
-        self.breakDuration = breakDuration
-        self.remainingSeconds = focusDuration
+    init() {
+        let savedFocusMinutes = UserDefaults.standard.integer(forKey: DefaultsKey.focusMinutes)
+        let savedBreakMinutes = UserDefaults.standard.integer(forKey: DefaultsKey.breakMinutes)
+        let initialFocusMinutes = min(60, max(1, savedFocusMinutes > 0 ? savedFocusMinutes : 25))
+        let initialBreakMinutes = min(60, max(1, savedBreakMinutes > 0 ? savedBreakMinutes : 5))
+        self.focusMinutes = initialFocusMinutes
+        self.breakMinutes = initialBreakMinutes
+        self.remainingSeconds = initialFocusMinutes * 60
     }
 
     var statusText: String {
@@ -94,6 +103,24 @@ final class PomodoroTimerStore: ObservableObject {
         beginSequence(makeBreakFirstSequence())
     }
 
+    func updateFocusMinutes(_ minutes: Int) {
+        focusMinutes = clampedMinutes(minutes)
+        UserDefaults.standard.set(focusMinutes, forKey: DefaultsKey.focusMinutes)
+
+        if phase == .idle {
+            remainingSeconds = focusDuration
+        }
+    }
+
+    func updateBreakMinutes(_ minutes: Int) {
+        breakMinutes = clampedMinutes(minutes)
+        UserDefaults.standard.set(breakMinutes, forKey: DefaultsKey.breakMinutes)
+
+        if phase == .breakTime, !isRunning {
+            remainingSeconds = min(remainingSeconds, breakDuration)
+        }
+    }
+
     func togglePause() {
         isRunning ? pause() : start()
     }
@@ -123,6 +150,14 @@ final class PomodoroTimerStore: ObservableObject {
         case .breakTime:
             return breakDuration
         }
+    }
+
+    private var focusDuration: Int {
+        focusMinutes * 60
+    }
+
+    private var breakDuration: Int {
+        breakMinutes * 60
     }
 
     private func beginSequence(_ phases: [Phase]) {
@@ -186,6 +221,10 @@ final class PomodoroTimerStore: ObservableObject {
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
+    }
+
+    private func clampedMinutes(_ minutes: Int) -> Int {
+        min(60, max(1, minutes))
     }
 
     deinit {

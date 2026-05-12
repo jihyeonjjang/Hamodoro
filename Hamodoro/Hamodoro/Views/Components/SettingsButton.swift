@@ -8,8 +8,12 @@
 import SwiftUI
 
 struct SettingsButton: View {
+    @Environment(\.openWindow) private var openWindow
+
     var body: some View {
-        Button {} label: {
+        Button {
+            openWindow(id: HamodoroWindow.settings)
+        } label: {
             Image(systemName: "gearshape")
                 .font(.system(size: 14, weight: .medium))
                 .foregroundStyle(HamodoroDesign.Color.icon)

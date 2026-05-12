@@ -18,5 +18,10 @@ struct HamodoroApp: App {
             Label(timerStore.statusText, systemImage: timerStore.isRunning ? "timer" : "timer.circle")
         }
         .menuBarExtraStyle(.window)
+
+        WindowGroup("설정", id: HamodoroWindow.settings) {
+            SettingsView(timerStore: timerStore)
+        }
+        .windowResizability(.contentSize)
     }
 }
