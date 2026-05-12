@@ -6,37 +6,34 @@
 //
 
 import SwiftUI
-import AppKit
 
 struct SettingsView: View {
     @ObservedObject var timerStore: PomodoroTimerStore
+    @ObservedObject var appSettingsStore: AppSettingsStore
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            Text("설정")
-                .font(.system(size: 18, weight: .semibold, design: .rounded))
-                .foregroundStyle(HamodoroDesign.Color.primaryText)
-
-            List {
-                durationPickerRow(
+        Form {
+            Section("시간") {
+                durationPicker(
                     title: "집중",
-                    minutes: focusMinutesBinding
+                    minutes: focusMinutesBinding,
+                    options: PomodoroTimerStore.focusMinuteOptions
                 )
 
-                durationPickerRow(
+                durationPicker(
                     title: "휴식",
-                    minutes: breakMinutesBinding
+                    minutes: breakMinutesBinding,
+                    options: PomodoroTimerStore.breakMinuteOptions
                 )
             }
-            .listStyle(.inset)
-            .scrollDisabled(true)
-            .frame(height: 104)
+
+            Section("자동 실행") {
+                Toggle("로그인 시 햄모도로를 자동 실행", isOn: launchAtLoginBinding)
+            }
         }
-        .padding(.top, 20)
-        .padding(.horizontal, 20)
-        .padding(.bottom, 28)
-        .frame(minWidth: 300)
-        .background(HamodoroDesign.Color.background)
+        .formStyle(.grouped)
+        .padding(20)
+        .frame(minWidth: 340, maxWidth: 420)
     }
 
     private var focusMinutesBinding: Binding<Int> {
@@ -53,76 +50,26 @@ struct SettingsView: View {
         )
     }
 
-    private func durationPickerRow(title: String, minutes: Binding<Int>) -> some View {
-        HStack {
-            Text(title)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
-                .foregroundStyle(HamodoroDesign.Color.foreground)
-
-            Spacer()
-
-            MinuteComboBox(selection: minutes)
-                .frame(width: 92, height: 24)
-        }
-        .frame(height: 44)
-    }
-}
-
-struct MinuteComboBox: NSViewRepresentable {
-    @Binding var selection: Int
-
-    func makeNSView(context: Context) -> NSComboBox {
-        let comboBox = NSComboBox()
-        comboBox.usesDataSource = false
-        comboBox.completes = true
-        comboBox.isEditable = false
-        comboBox.numberOfVisibleItems = 10
-        comboBox.addItems(withObjectValues: (1...60).map { "\($0)분" })
-        comboBox.selectItem(at: selection - 1)
-        comboBox.delegate = context.coordinator
-        return comboBox
+    private var launchAtLoginBinding: Binding<Bool> {
+        Binding(
+            get: { appSettingsStore.launchAtLoginEnabled },
+            set: { appSettingsStore.updateLaunchAtLoginEnabled($0) }
+        )
     }
 
-    func updateNSView(_ comboBox: NSComboBox, context: Context) {
-        context.coordinator.update(comboBox, selection: selection)
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator(selection: $selection)
-    }
-
-    final class Coordinator: NSObject, NSComboBoxDelegate {
-        @Binding private var selection: Int
-        private var isUpdatingComboBox = false
-
-        init(selection: Binding<Int>) {
-            self._selection = selection
-        }
-
-        func update(_ comboBox: NSComboBox, selection: Int) {
-            let selectedIndex = selection - 1
-            guard comboBox.indexOfSelectedItem != selectedIndex else { return }
-
-            isUpdatingComboBox = true
-            comboBox.selectItem(at: selectedIndex)
-            isUpdatingComboBox = false
-        }
-
-        func comboBoxSelectionDidChange(_ notification: Notification) {
-            guard !isUpdatingComboBox else { return }
-            guard let comboBox = notification.object as? NSComboBox else { return }
-            let selectedMinute = min(60, max(1, comboBox.indexOfSelectedItem + 1))
-            guard selection != selectedMinute else { return }
-
-            DispatchQueue.main.async {
-                self.selection = selectedMinute
+    private func durationPicker(title: String, minutes: Binding<Int>, options: [Int]) -> some View {
+        Picker(title, selection: minutes) {
+            ForEach(options, id: \.self) { minute in
+                Text("\(minute)분")
+                    .tag(minute)
             }
         }
+        .pickerStyle(.menu)
     }
 }
 
 struct SettingsView_Previews: PreviewProvider {
     static var previews: some View {
-        SettingsView(timerStore: PomodoroTimerStore())
+        SettingsView(timerStore: PomodoroTimerStore(), appSettingsStore: AppSettingsStore())
     }
 }

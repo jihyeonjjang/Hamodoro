@@ -10,6 +10,7 @@ import SwiftUI
 @main
 struct HamodoroApp: App {
     @StateObject private var timerStore = PomodoroTimerStore()
+    @StateObject private var appSettingsStore = AppSettingsStore()
 
     var body: some Scene {
         MenuBarExtra {
@@ -20,7 +21,7 @@ struct HamodoroApp: App {
         .menuBarExtraStyle(.window)
 
         WindowGroup("설정", id: HamodoroWindow.settings) {
-            SettingsView(timerStore: timerStore)
+            SettingsView(timerStore: timerStore, appSettingsStore: appSettingsStore)
         }
         .windowResizability(.contentSize)
     }

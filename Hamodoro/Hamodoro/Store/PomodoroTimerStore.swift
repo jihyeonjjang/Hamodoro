@@ -15,6 +15,9 @@ final class PomodoroTimerStore: ObservableObject {
         static let breakMinutes = "breakMinutes"
     }
 
+    static let focusMinuteOptions = Array(stride(from: 5, through: 60, by: 5))
+    static let breakMinuteOptions = [1, 3, 5, 10, 15, 20, 30]
+
     enum Phase {
         case idle
         case focus
@@ -46,8 +49,8 @@ final class PomodoroTimerStore: ObservableObject {
     init() {
         let savedFocusMinutes = UserDefaults.standard.integer(forKey: DefaultsKey.focusMinutes)
         let savedBreakMinutes = UserDefaults.standard.integer(forKey: DefaultsKey.breakMinutes)
-        let initialFocusMinutes = min(60, max(1, savedFocusMinutes > 0 ? savedFocusMinutes : 25))
-        let initialBreakMinutes = min(60, max(1, savedBreakMinutes > 0 ? savedBreakMinutes : 5))
+        let initialFocusMinutes = Self.nearestOption(to: savedFocusMinutes > 0 ? savedFocusMinutes : 25, in: Self.focusMinuteOptions)
+        let initialBreakMinutes = Self.nearestOption(to: savedBreakMinutes > 0 ? savedBreakMinutes : 5, in: Self.breakMinuteOptions)
         self.focusMinutes = initialFocusMinutes
         self.breakMinutes = initialBreakMinutes
         self.remainingSeconds = initialFocusMinutes * 60
@@ -104,7 +107,7 @@ final class PomodoroTimerStore: ObservableObject {
     }
 
     func updateFocusMinutes(_ minutes: Int) {
-        focusMinutes = clampedMinutes(minutes)
+        focusMinutes = Self.nearestOption(to: minutes, in: Self.focusMinuteOptions)
         UserDefaults.standard.set(focusMinutes, forKey: DefaultsKey.focusMinutes)
 
         if phase == .idle {
@@ -113,7 +116,7 @@ final class PomodoroTimerStore: ObservableObject {
     }
 
     func updateBreakMinutes(_ minutes: Int) {
-        breakMinutes = clampedMinutes(minutes)
+        breakMinutes = Self.nearestOption(to: minutes, in: Self.breakMinuteOptions)
         UserDefaults.standard.set(breakMinutes, forKey: DefaultsKey.breakMinutes)
 
         if phase == .breakTime, !isRunning {
@@ -223,8 +226,10 @@ final class PomodoroTimerStore: ObservableObject {
         timer = nil
     }
 
-    private func clampedMinutes(_ minutes: Int) -> Int {
-        min(60, max(1, minutes))
+    private static func nearestOption(to minutes: Int, in options: [Int]) -> Int {
+        options.min { first, second in
+            abs(first - minutes) < abs(second - minutes)
+        } ?? minutes
     }
 
     deinit {
