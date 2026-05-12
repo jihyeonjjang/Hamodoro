@@ -15,8 +15,11 @@ struct HamsterImageView: View {
         Image(imageName)
             .resizable()
             .scaledToFit()
-            .frame(height: HamodoroDesign.Layout.imageHeight)
-            .frame(maxWidth: .infinity)
+            .frame(
+                width: HamodoroDesign.Layout.hamsterImageSize,
+                height: HamodoroDesign.Layout.hamsterImageSize
+            )
+            .frame(maxWidth: .infinity, alignment: .center)
             .padding(.horizontal, 18)
     }
 

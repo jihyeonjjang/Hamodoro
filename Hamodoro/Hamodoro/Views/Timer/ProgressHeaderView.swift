@@ -11,31 +11,47 @@ struct ProgressHeaderView: View {
     @ObservedObject var timerStore: PomodoroTimerStore
 
     var body: some View {
-        HStack(spacing: 8) {
-            Image(headerImageName)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 24, height: 24)
+        HStack(spacing: headerItemSpacing) {
+            Text(headerEmoji)
+                .font(.system(size: headerEmojiSize))
+                .frame(width: headerSideSlotWidth, height: 24, alignment: .trailing)
 
-            ProgressView(value: timerStore.progress)
+            ProgressView(value: timerStore.remainingProgress)
                 .progressViewStyle(HamodoroProgressStyle())
                 .frame(height: 5)
+                .frame(maxWidth: .infinity)
 
             Text(timerStore.remainingTimeText)
-                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .font(.system(size: 12, weight: .medium, design: .rounded))
                 .foregroundStyle(HamodoroDesign.Color.foreground)
-                .frame(width: 44, alignment: .trailing)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .monospacedDigit()
+                .frame(width: headerSideSlotWidth, alignment: .leading)
         }
         .opacity(timerStore.phase == .idle ? 0 : 1)
+        .frame(maxWidth: .infinity)
         .frame(height: 24)
     }
 
-    private var headerImageName: String {
+    private let headerSideSlotWidth: CGFloat = 38
+    private let headerItemSpacing: CGFloat = 6
+
+    private var headerEmoji: String {
         switch timerStore.phase {
         case .idle, .breakTime:
-            return "macbook"
+            return "💻"
         case .focus:
-            return "iceCoffee"
+            return "☕️"
+        }
+    }
+
+    private var headerEmojiSize: CGFloat {
+        switch timerStore.phase {
+        case .idle, .breakTime:
+            return 13
+        case .focus:
+            return 15
         }
     }
 }
@@ -48,7 +64,7 @@ struct HamodoroProgressStyle: ProgressViewStyle {
                     .fill(HamodoroDesign.Color.progressTrack)
 
                 Capsule()
-                    .fill(HamodoroDesign.Color.progressFill)
+                    .fill(HamodoroDesign.Color.systemAccent)
                     .frame(width: proxy.size.width * (configuration.fractionCompleted ?? 0))
             }
         }

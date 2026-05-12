@@ -13,7 +13,7 @@ struct HamodoroApp: App {
 
     var body: some Scene {
         MenuBarExtra {
-            ContentView(timerStore: timerStore)
+            HamodoroRootView(timerStore: timerStore)
         } label: {
             Label(timerStore.statusText, systemImage: timerStore.isRunning ? "timer" : "timer.circle")
         }

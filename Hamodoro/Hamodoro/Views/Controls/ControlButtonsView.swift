@@ -27,7 +27,7 @@ struct ControlButtonsView: View {
     private var idleButtons: some View {
         Group {
             controlSlot {
-                CircleImageButton(imageName: "iceCoffee", title: "휴식") {
+                CircleImageButton(emoji: "☕️", title: "휴식") {
                     timerStore.startBreak()
                 }
             }
@@ -38,7 +38,7 @@ struct ControlButtonsView: View {
             }
 
             controlSlot {
-                CircleImageButton(imageName: "macbook", title: "집중") {
+                CircleImageButton(emoji: "💻", title: "집중", emojiScale: 0.29, emojiOffsetX: 0) {
                     timerStore.startFocus()
                 }
             }
@@ -48,7 +48,7 @@ struct ControlButtonsView: View {
     private var focusButtons: some View {
         Group {
             controlSlot {
-                CircleImageButton(imageName: "iceCoffee", title: "휴식") {
+                CircleImageButton(emoji: "☕️", title: "휴식") {
                     timerStore.startBreak()
                 }
             }
@@ -66,7 +66,7 @@ struct ControlButtonsView: View {
     private var breakButtons: some View {
         Group {
             controlSlot {
-                CircleImageButton(imageName: "macbook", title: "집중") {
+                CircleImageButton(emoji: "💻", title: "집중", emojiScale: 0.29, emojiOffsetX: 0) {
                     timerStore.startFocus()
                 }
             }

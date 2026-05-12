@@ -60,9 +60,9 @@ final class PomodoroTimerStore: ObservableObject {
         Int(ceil(Double(remainingSeconds) / 60.0))
     }
 
-    var progress: Double {
+    var remainingProgress: Double {
         guard phase != .idle, currentDuration > 0 else { return 0 }
-        return Double(currentDuration - remainingSeconds) / Double(currentDuration)
+        return Double(remainingSeconds) / Double(currentDuration)
     }
 
     var focusFirstEndClockText: String {
