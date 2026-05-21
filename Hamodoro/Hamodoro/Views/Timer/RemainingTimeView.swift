@@ -32,7 +32,7 @@ struct RemainingTimeView: View {
 
             Text("까지 햄모도로와 함께해요")
         }
-        .font(.system(size: 13, weight: .medium, design: .rounded))
+        .font(.hakgyoansimKkokkomaRegular(size: 16))
         .foregroundStyle(HamodoroDesign.Color.secondaryText)
         .lineLimit(1)
         .minimumScaleFactor(0.85)
@@ -41,11 +41,11 @@ struct RemainingTimeView: View {
     private var activeContent: some View {
         Group {
             Text("\(timerStore.remainingMinutes)")
-                .font(.system(size: 42, weight: .regular, design: .rounded))
+                .font(.hakgyoansimKkokkomaRegular(size: 48))
                 .foregroundStyle(HamodoroDesign.Color.primaryText)
 
             Text("분 남음")
-                .font(.system(size: 12, weight: .medium, design: .rounded))
+                .font(.hakgyoansimKkokkomaRegular(size: 15))
                 .foregroundStyle(HamodoroDesign.Color.secondaryText)
                 .padding(.bottom, 5)
         }

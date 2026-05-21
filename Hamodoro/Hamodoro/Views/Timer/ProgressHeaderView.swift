@@ -32,7 +32,7 @@ struct ProgressHeaderView: View {
                     .frame(maxWidth: .infinity)
 
                 Text(timerStore.remainingTimeText)
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                    .font(.hakgyoansimKkokkomaRegular(size: 15))
                     .foregroundStyle(HamodoroDesign.Color.foreground)
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)

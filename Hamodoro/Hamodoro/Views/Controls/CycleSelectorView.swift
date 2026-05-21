@@ -64,7 +64,7 @@ struct CycleSelectorView: View {
 
     private func cycleNumber(_ cycleCount: Int, isSelected: Bool) -> some View {
         Text("\(cycleCount)")
-            .font(.system(size: isSelected ? 28 : 15, weight: isSelected ? .semibold : .regular, design: .rounded))
+            .font(.hakgyoansimKkokkomaRegular(size: isSelected ? 34 : 18))
             .foregroundStyle(isSelected ? HamodoroDesign.Color.primaryText : HamodoroDesign.Color.secondaryText.opacity(0.45))
             .frame(width: HamodoroDesign.Layout.cyclePickerWidth, height: isSelected ? 34 : 21)
     }
