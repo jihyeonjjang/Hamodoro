@@ -6,12 +6,14 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct SettingsButton: View {
     @Environment(\.openWindow) private var openWindow
 
     var body: some View {
         Button {
+            NSApp.activate(ignoringOtherApps: true)
             openWindow(id: HamodoroWindow.settings)
         } label: {
             Image(systemName: "gearshape")
