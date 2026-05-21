@@ -29,7 +29,6 @@ struct RemainingTimeView: View {
         HStack(spacing: 0) {
             Text(timerStore.focusFirstEndClockText)
                 .monospacedDigit()
-                .frame(width: 66, alignment: .trailing)
 
             Text("까지 햄모도로와 함께해요")
         }

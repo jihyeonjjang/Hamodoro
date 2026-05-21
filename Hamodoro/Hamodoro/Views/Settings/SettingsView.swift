@@ -27,6 +27,11 @@ struct SettingsView: View {
                 )
             }
 
+            Section("알림") {
+                Toggle("집중 시작 알림", isOn: focusStartNotificationBinding)
+                Toggle("휴식 시작 알림", isOn: breakStartNotificationBinding)
+            }
+
             Section("자동 실행") {
                 Toggle("로그인 시 햄모도로를 자동 실행", isOn: launchAtLoginBinding)
             }
@@ -47,6 +52,20 @@ struct SettingsView: View {
         Binding(
             get: { timerStore.breakMinutes },
             set: { timerStore.updateBreakMinutes($0) }
+        )
+    }
+
+    private var focusStartNotificationBinding: Binding<Bool> {
+        Binding(
+            get: { appSettingsStore.focusStartNotificationEnabled },
+            set: { appSettingsStore.updateFocusStartNotificationEnabled($0) }
+        )
+    }
+
+    private var breakStartNotificationBinding: Binding<Bool> {
+        Binding(
+            get: { appSettingsStore.breakStartNotificationEnabled },
+            set: { appSettingsStore.updateBreakStartNotificationEnabled($0) }
         )
     }
 

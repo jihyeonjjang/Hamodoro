@@ -12,6 +12,10 @@ struct HamodoroApp: App {
     @StateObject private var timerStore = PomodoroTimerStore()
     @StateObject private var appSettingsStore = AppSettingsStore()
 
+    init() {
+        TimerNotificationManager.shared.configure()
+    }
+
     var body: some Scene {
         MenuBarExtra {
             HamodoroRootView(timerStore: timerStore)

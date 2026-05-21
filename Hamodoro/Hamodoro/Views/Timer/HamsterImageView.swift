@@ -28,9 +28,9 @@ struct HamsterImageView: View {
         case .idle:
             return "ham"
         case .focus:
-            return isRunning ? "macHam" : "standingHam"
+            return isRunning ? "macHam" : "sleepingHam"
         case .breakTime:
-            return isRunning ? "coffeeHam" : "standingHam"
+            return isRunning ? "coffeeHam" : "sleepingHam"
         }
     }
 }

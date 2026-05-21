@@ -212,6 +212,9 @@ final class PomodoroTimerStore: ObservableObject {
     }
 
     private func moveToNextPhase() {
+        let completedPhase = phase
+        TimerNotificationManager.shared.notifyPhaseEnded(completedPhase)
+
         if currentPhaseIndex + 1 < plannedPhases.count {
             currentPhaseIndex += 1
             phase = plannedPhases[currentPhaseIndex]
