@@ -24,7 +24,7 @@ struct HamodoroApp: App {
         }
         .menuBarExtraStyle(.window)
 
-        WindowGroup("설정", id: HamodoroWindow.settings) {
+        Window("설정", id: HamodoroWindow.settings) {
             SettingsView(timerStore: timerStore, appSettingsStore: appSettingsStore)
         }
         .windowResizability(.contentSize)

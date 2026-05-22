@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import AppKit
 
 struct SettingsView: View {
     @ObservedObject var timerStore: PomodoroTimerStore
@@ -39,6 +40,9 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .padding(20)
         .frame(minWidth: 340, maxWidth: 420)
+        .onAppear {
+            NSApp.activate(ignoringOtherApps: true)
+        }
     }
 
     private var focusMinutesBinding: Binding<Double> {
