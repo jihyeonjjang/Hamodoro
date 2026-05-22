@@ -32,12 +32,10 @@ final class TimerNotificationManager: NSObject, UNUserNotificationCenterDelegate
             return
         case .focus:
             guard AppSettingsStore.isBreakStartNotificationEnabled else { return }
-
             content.title = "집중 완료"
             content.body = "이제 휴식이다햄!"
         case .breakTime:
             guard AppSettingsStore.isFocusStartNotificationEnabled else { return }
-
             content.title = "휴식 완료"
             content.body = "이제 집중이다햄..."
         }
