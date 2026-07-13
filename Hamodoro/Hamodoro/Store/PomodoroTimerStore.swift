@@ -13,6 +13,8 @@ final class PomodoroTimerStore: ObservableObject {
     private enum DefaultsKey {
         static let focusMinutes = "focusMinutes"
         static let breakMinutes = "breakMinutes"
+        static let todayStudySeconds = "todayStudySeconds"
+        static let todayStudyDateKey = "todayStudyDateKey"
     }
 
     // TODO: Remove test options (5 seconds) before deployment - for testing only
@@ -41,6 +43,7 @@ final class PomodoroTimerStore: ObservableObject {
     @Published private(set) var isRunning = false
     @Published private(set) var focusMinutes: Double
     @Published private(set) var breakMinutes: Double
+    @Published private(set) var todayStudySeconds: Int
     @Published var selectedCycleCount = 1
 
     private var timer: Timer?
@@ -55,6 +58,12 @@ final class PomodoroTimerStore: ObservableObject {
         self.focusMinutes = initialFocusMinutes
         self.breakMinutes = initialBreakMinutes
         self.remainingSeconds = Int(initialFocusMinutes * 60)
+
+        let currentStudyDayKey = Self.studyDayKey(for: Date())
+        let storedStudyDateKey = UserDefaults.standard.string(forKey: DefaultsKey.todayStudyDateKey)
+        self.todayStudySeconds = storedStudyDateKey == currentStudyDayKey
+            ? UserDefaults.standard.integer(forKey: DefaultsKey.todayStudySeconds)
+            : 0
     }
 
     var statusText: String {

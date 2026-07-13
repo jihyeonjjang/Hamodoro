@@ -8,14 +8,17 @@
 import XCTest
 @testable import Hamodoro
 
+@MainActor
 final class HamodoroTests: XCTestCase {
 
     override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+        UserDefaults.standard.removeObject(forKey: "todayStudySeconds")
+        UserDefaults.standard.removeObject(forKey: "todayStudyDateKey")
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
+        UserDefaults.standard.removeObject(forKey: "todayStudySeconds")
+        UserDefaults.standard.removeObject(forKey: "todayStudyDateKey")
     }
 
     func testExample() throws {
@@ -61,6 +64,25 @@ final class HamodoroTests: XCTestCase {
         let key = PomodoroTimerStore.studyDayKey(for: date)
 
         XCTAssertEqual(key, "2026-07-13")
+    }
+
+    func testInitRestoresTodayStudySecondsWhenDateKeyMatchesCurrentStudyDay() throws {
+        let currentKey = PomodoroTimerStore.studyDayKey(for: Date())
+        UserDefaults.standard.set(currentKey, forKey: "todayStudyDateKey")
+        UserDefaults.standard.set(125, forKey: "todayStudySeconds")
+
+        let store = PomodoroTimerStore()
+
+        XCTAssertEqual(store.todayStudySeconds, 125)
+    }
+
+    func testInitDiscardsTodayStudySecondsWhenDateKeyIsStale() throws {
+        UserDefaults.standard.set("2000-01-01", forKey: "todayStudyDateKey")
+        UserDefaults.standard.set(999, forKey: "todayStudySeconds")
+
+        let store = PomodoroTimerStore()
+
+        XCTAssertEqual(store.todayStudySeconds, 0)
     }
 
 }
