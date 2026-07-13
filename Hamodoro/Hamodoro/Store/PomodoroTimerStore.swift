@@ -13,6 +13,8 @@ final class PomodoroTimerStore: ObservableObject {
     private enum DefaultsKey {
         static let focusMinutes = "focusMinutes"
         static let breakMinutes = "breakMinutes"
+        static let todayStudySeconds = "todayStudySeconds"
+        static let todayStudyDateKey = "todayStudyDateKey"
     }
 
     // TODO: Remove test options (5 seconds) before deployment - for testing only
@@ -41,6 +43,7 @@ final class PomodoroTimerStore: ObservableObject {
     @Published private(set) var isRunning = false
     @Published private(set) var focusMinutes: Double
     @Published private(set) var breakMinutes: Double
+    @Published private(set) var todayStudySeconds: Int
     @Published var selectedCycleCount = 1
 
     private var timer: Timer?
@@ -55,6 +58,12 @@ final class PomodoroTimerStore: ObservableObject {
         self.focusMinutes = initialFocusMinutes
         self.breakMinutes = initialBreakMinutes
         self.remainingSeconds = Int(initialFocusMinutes * 60)
+
+        let currentStudyDayKey = Self.studyDayKey(for: Date())
+        let storedStudyDateKey = UserDefaults.standard.string(forKey: DefaultsKey.todayStudyDateKey)
+        self.todayStudySeconds = storedStudyDateKey == currentStudyDayKey
+            ? UserDefaults.standard.integer(forKey: DefaultsKey.todayStudySeconds)
+            : 0
     }
 
     var statusText: String {
@@ -67,6 +76,20 @@ final class PomodoroTimerStore: ObservableObject {
 
     var remainingTimeText: String {
         formattedTime(remainingSeconds)
+    }
+
+    var todayStudyTimeText: String? {
+        guard todayStudySeconds > 0 else { return nil }
+
+        let totalMinutes = todayStudySeconds / 60
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 {
+            return "\(hours)시간 \(minutes)분 집중했어요"
+        } else {
+            return "\(minutes)분 집중했어요"
+        }
     }
 
     var remainingMinutes: Int {
@@ -202,14 +225,28 @@ final class PomodoroTimerStore: ObservableObject {
         }
     }
 
-    private func tick() {
+    func tick() {
         guard isRunning else { return }
+
+        if phase == .focus {
+            recordFocusSecond()
+        }
 
         if remainingSeconds > 1 {
             remainingSeconds -= 1
         } else {
             moveToNextPhase()
         }
+    }
+
+    private func recordFocusSecond() {
+        let currentKey = Self.studyDayKey(for: Date())
+        if currentKey != UserDefaults.standard.string(forKey: DefaultsKey.todayStudyDateKey) {
+            todayStudySeconds = 0
+            UserDefaults.standard.set(currentKey, forKey: DefaultsKey.todayStudyDateKey)
+        }
+        todayStudySeconds += 1
+        UserDefaults.standard.set(todayStudySeconds, forKey: DefaultsKey.todayStudySeconds)
     }
 
     private func moveToNextPhase() {
@@ -251,5 +288,16 @@ final class PomodoroTimerStore: ObservableObject {
         formatter.locale = Locale(identifier: "ko_KR")
         formatter.dateFormat = "a h:mm"
         return formatter.string(from: date)
+    }
+
+    nonisolated static func studyDayKey(for date: Date) -> String {
+        var calendar = Calendar.current
+        calendar.timeZone = .current
+        let hour = calendar.component(.hour, from: date)
+        let effectiveDate = hour < 6 ? calendar.date(byAdding: .day, value: -1, to: date)! : date
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: effectiveDate)
     }
 }
