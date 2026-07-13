@@ -78,6 +78,20 @@ final class PomodoroTimerStore: ObservableObject {
         formattedTime(remainingSeconds)
     }
 
+    var todayStudyTimeText: String? {
+        guard todayStudySeconds > 0 else { return nil }
+
+        let totalMinutes = todayStudySeconds / 60
+        let hours = totalMinutes / 60
+        let minutes = totalMinutes % 60
+
+        if hours > 0 {
+            return "\(hours)시간 \(minutes)분 집중했어요"
+        } else {
+            return "\(minutes)분 집중했어요"
+        }
+    }
+
     var remainingMinutes: Int {
         Int(ceil(Double(remainingSeconds) / 60.0))
     }

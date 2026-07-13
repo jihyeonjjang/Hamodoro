@@ -108,4 +108,30 @@ final class HamodoroTests: XCTestCase {
         XCTAssertEqual(store.todayStudySeconds, 0)
     }
 
+    func testTodayStudyTimeTextIsNilWhenNoTimeStudiedToday() throws {
+        let store = PomodoroTimerStore()
+
+        XCTAssertNil(store.todayStudyTimeText)
+    }
+
+    func testTodayStudyTimeTextOmitsHoursUnderOneHour() throws {
+        let currentKey = PomodoroTimerStore.studyDayKey(for: Date())
+        UserDefaults.standard.set(currentKey, forKey: "todayStudyDateKey")
+        UserDefaults.standard.set(125, forKey: "todayStudySeconds")
+
+        let store = PomodoroTimerStore()
+
+        XCTAssertEqual(store.todayStudyTimeText, "2분 집중했어요")
+    }
+
+    func testTodayStudyTimeTextIncludesHoursOverOneHour() throws {
+        let currentKey = PomodoroTimerStore.studyDayKey(for: Date())
+        UserDefaults.standard.set(currentKey, forKey: "todayStudyDateKey")
+        UserDefaults.standard.set(3725, forKey: "todayStudySeconds")
+
+        let store = PomodoroTimerStore()
+
+        XCTAssertEqual(store.todayStudyTimeText, "1시간 2분 집중했어요")
+    }
+
 }
