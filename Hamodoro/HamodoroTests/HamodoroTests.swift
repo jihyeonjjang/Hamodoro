@@ -35,4 +35,32 @@ final class HamodoroTests: XCTestCase {
         }
     }
 
+    func testStudyDayKeyBeforeSixAMBelongsToPreviousDay() throws {
+        var components = DateComponents()
+        components.year = 2026
+        components.month = 7
+        components.day = 13
+        components.hour = 5
+        components.minute = 59
+        let date = Calendar.current.date(from: components)!
+
+        let key = PomodoroTimerStore.studyDayKey(for: date)
+
+        XCTAssertEqual(key, "2026-07-12")
+    }
+
+    func testStudyDayKeyAtSixAMBelongsToCurrentDay() throws {
+        var components = DateComponents()
+        components.year = 2026
+        components.month = 7
+        components.day = 13
+        components.hour = 6
+        components.minute = 0
+        let date = Calendar.current.date(from: components)!
+
+        let key = PomodoroTimerStore.studyDayKey(for: date)
+
+        XCTAssertEqual(key, "2026-07-13")
+    }
+
 }

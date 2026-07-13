@@ -252,4 +252,15 @@ final class PomodoroTimerStore: ObservableObject {
         formatter.dateFormat = "a h:mm"
         return formatter.string(from: date)
     }
+
+    nonisolated static func studyDayKey(for date: Date) -> String {
+        var calendar = Calendar.current
+        calendar.timeZone = .current
+        let hour = calendar.component(.hour, from: date)
+        let effectiveDate = hour < 6 ? calendar.date(byAdding: .day, value: -1, to: date)! : date
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "ko_KR")
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: effectiveDate)
+    }
 }
