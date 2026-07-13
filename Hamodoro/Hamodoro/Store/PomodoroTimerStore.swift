@@ -211,14 +211,28 @@ final class PomodoroTimerStore: ObservableObject {
         }
     }
 
-    private func tick() {
+    func tick() {
         guard isRunning else { return }
+
+        if phase == .focus {
+            recordFocusSecond()
+        }
 
         if remainingSeconds > 1 {
             remainingSeconds -= 1
         } else {
             moveToNextPhase()
         }
+    }
+
+    private func recordFocusSecond() {
+        let currentKey = Self.studyDayKey(for: Date())
+        if currentKey != UserDefaults.standard.string(forKey: DefaultsKey.todayStudyDateKey) {
+            todayStudySeconds = 0
+            UserDefaults.standard.set(currentKey, forKey: DefaultsKey.todayStudyDateKey)
+        }
+        todayStudySeconds += 1
+        UserDefaults.standard.set(todayStudySeconds, forKey: DefaultsKey.todayStudySeconds)
     }
 
     private func moveToNextPhase() {

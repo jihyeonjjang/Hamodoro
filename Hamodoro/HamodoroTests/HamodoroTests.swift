@@ -85,4 +85,27 @@ final class HamodoroTests: XCTestCase {
         XCTAssertEqual(store.todayStudySeconds, 0)
     }
 
+    func testTickIncrementsTodayStudySecondsDuringFocus() throws {
+        let store = PomodoroTimerStore()
+        store.updateFocusMinutes(25)
+        store.startFocus()
+
+        store.tick()
+        store.tick()
+        store.pause()
+
+        XCTAssertEqual(store.todayStudySeconds, 2)
+    }
+
+    func testTickDoesNotIncrementTodayStudySecondsDuringBreak() throws {
+        let store = PomodoroTimerStore()
+        store.updateBreakMinutes(5)
+        store.startBreak()
+
+        store.tick()
+        store.pause()
+
+        XCTAssertEqual(store.todayStudySeconds, 0)
+    }
+
 }
