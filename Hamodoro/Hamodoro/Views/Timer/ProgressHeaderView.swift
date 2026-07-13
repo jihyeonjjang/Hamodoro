@@ -14,10 +14,18 @@ struct ProgressHeaderView: View {
         ZStack {
             // Idle state: Show app title
             if timerStore.phase == .idle {
-                Text("햄모도로")
-                    .font(.hakgyoansimKkokkomaRegular(size: 36))
-                    .foregroundStyle(HamodoroDesign.Color.primaryText)
-                    .padding(.top, 24)
+                VStack(spacing: 4) {
+                    Text("햄모도로")
+                        .font(.hakgyoansimKkokkomaRegular(size: 36))
+                        .foregroundStyle(HamodoroDesign.Color.primaryText)
+
+                    if let todayStudyTimeText = timerStore.todayStudyTimeText {
+                        Text(todayStudyTimeText)
+                            .font(.hakgyoansimKkokkomaRegular(size: 13))
+                            .foregroundStyle(HamodoroDesign.Color.secondaryText)
+                    }
+                }
+                .padding(.top, 24)
             }
 
             // Active state: Show progress
