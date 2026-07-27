@@ -20,7 +20,7 @@ struct HamodoroApp: App {
         MenuBarExtra {
             HamodoroRootView(timerStore: timerStore)
         } label: {
-            Label(timerStore.statusText, systemImage: timerStore.isRunning ? "timer" : "timer.circle")
+            MenuBarIconView(phase: timerStore.phase, isRunning: timerStore.isRunning)
         }
         .menuBarExtraStyle(.window)
 
