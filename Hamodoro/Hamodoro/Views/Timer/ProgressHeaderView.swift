@@ -21,10 +21,13 @@ struct ProgressHeaderView: View {
 
                     if let todayStudyTimeText = timerStore.todayStudyTimeText {
                         Text(todayStudyTimeText)
-                            .font(.hakgyoansimKkokkomaRegular(size: 13))
+                            .font(.hakgyoansimKkokkomaRegular(size: 16))
                             .foregroundStyle(HamodoroDesign.Color.secondaryText)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
                     }
                 }
+                .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 24)
             }
 
@@ -50,7 +53,7 @@ struct ProgressHeaderView: View {
             .opacity(timerStore.phase == .idle ? 0 : 1)
         }
         .frame(maxWidth: .infinity)
-        .frame(height: 24)
+        .frame(minHeight: 24)
     }
 
     private let headerSideSlotWidth: CGFloat = 38
