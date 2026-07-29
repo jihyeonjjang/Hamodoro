@@ -144,3 +144,9 @@ xcuserdata
 
 # Superpowers brainstorming companion
 .superpowers/
+
+# Claude Code harness config (not part of the app)
+.agents/
+.claude/
+CLAUDE.md
+skills-lock.json
