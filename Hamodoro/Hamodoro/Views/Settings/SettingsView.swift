@@ -45,14 +45,14 @@ struct SettingsView: View {
         }
     }
 
-    private var focusMinutesBinding: Binding<Double> {
+    private var focusMinutesBinding: Binding<Int> {
         Binding(
             get: { timerStore.focusMinutes },
             set: { timerStore.updateFocusMinutes($0) }
         )
     }
 
-    private var breakMinutesBinding: Binding<Double> {
+    private var breakMinutesBinding: Binding<Int> {
         Binding(
             get: { timerStore.breakMinutes },
             set: { timerStore.updateBreakMinutes($0) }
@@ -80,22 +80,14 @@ struct SettingsView: View {
         )
     }
 
-    private func durationPicker(title: String, minutes: Binding<Double>, options: [Double]) -> some View {
+    private func durationPicker(title: String, minutes: Binding<Int>, options: [Int]) -> some View {
         Picker(title, selection: minutes) {
             ForEach(options, id: \.self) { minute in
-                Text(formatDuration(minute))
+                Text("\(minute)분")
                     .tag(minute)
             }
         }
         .pickerStyle(.menu)
-    }
-
-    private func formatDuration(_ minutes: Double) -> String {
-        if minutes < 1 {
-            return "\(Int(minutes * 60))초"
-        } else {
-            return "\(Int(minutes))분"
-        }
     }
 }
 

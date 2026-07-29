@@ -17,9 +17,8 @@ final class PomodoroTimerStore: ObservableObject {
         static let todayStudyDateKey = "todayStudyDateKey"
     }
 
-    // TODO: Remove test options (5 seconds) before deployment - for testing only
-    static let focusMinuteOptions: [Double] = [5.0/60.0] + Array(stride(from: 5, through: 60, by: 5)).map { Double($0) }
-    static let breakMinuteOptions: [Double] = [5.0/60.0, 1, 3, 5, 10, 15, 20, 30]
+    static let focusMinuteOptions = Array(stride(from: 5, through: 60, by: 5))
+    static let breakMinuteOptions = [1, 3, 5, 10, 15, 20, 30]
 
     enum Phase {
         case idle
@@ -41,8 +40,8 @@ final class PomodoroTimerStore: ObservableObject {
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var remainingSeconds: Int
     @Published private(set) var isRunning = false
-    @Published private(set) var focusMinutes: Double
-    @Published private(set) var breakMinutes: Double
+    @Published private(set) var focusMinutes: Int
+    @Published private(set) var breakMinutes: Int
     @Published private(set) var todayStudySeconds: Int
     @Published var selectedCycleCount = 1
 
@@ -51,13 +50,13 @@ final class PomodoroTimerStore: ObservableObject {
     private var currentPhaseIndex = 0
 
     init() {
-        let savedFocusMinutes = UserDefaults.standard.double(forKey: DefaultsKey.focusMinutes)
-        let savedBreakMinutes = UserDefaults.standard.double(forKey: DefaultsKey.breakMinutes)
+        let savedFocusMinutes = UserDefaults.standard.integer(forKey: DefaultsKey.focusMinutes)
+        let savedBreakMinutes = UserDefaults.standard.integer(forKey: DefaultsKey.breakMinutes)
         let initialFocusMinutes = Self.nearestOption(to: savedFocusMinutes > 0 ? savedFocusMinutes : 25, in: Self.focusMinuteOptions)
         let initialBreakMinutes = Self.nearestOption(to: savedBreakMinutes > 0 ? savedBreakMinutes : 5, in: Self.breakMinuteOptions)
         self.focusMinutes = initialFocusMinutes
         self.breakMinutes = initialBreakMinutes
-        self.remainingSeconds = Int(initialFocusMinutes * 60)
+        self.remainingSeconds = initialFocusMinutes * 60
 
         let currentStudyDayKey = Self.studyDayKey(for: Date())
         let storedStudyDateKey = UserDefaults.standard.string(forKey: DefaultsKey.todayStudyDateKey)
@@ -130,7 +129,7 @@ final class PomodoroTimerStore: ObservableObject {
         beginSequence(makeBreakFirstSequence())
     }
 
-    func updateFocusMinutes(_ minutes: Double) {
+    func updateFocusMinutes(_ minutes: Int) {
         focusMinutes = Self.nearestOption(to: minutes, in: Self.focusMinuteOptions)
         UserDefaults.standard.set(focusMinutes, forKey: DefaultsKey.focusMinutes)
 
@@ -139,7 +138,7 @@ final class PomodoroTimerStore: ObservableObject {
         }
     }
 
-    func updateBreakMinutes(_ minutes: Double) {
+    func updateBreakMinutes(_ minutes: Int) {
         breakMinutes = Self.nearestOption(to: minutes, in: Self.breakMinuteOptions)
         UserDefaults.standard.set(breakMinutes, forKey: DefaultsKey.breakMinutes)
 
@@ -180,11 +179,11 @@ final class PomodoroTimerStore: ObservableObject {
     }
 
     private var focusDuration: Int {
-        Int(focusMinutes * 60)
+        focusMinutes * 60
     }
 
     private var breakDuration: Int {
-        Int(breakMinutes * 60)
+        breakMinutes * 60
     }
 
     private func beginSequence(_ phases: [Phase]) {
@@ -267,7 +266,7 @@ final class PomodoroTimerStore: ObservableObject {
         timer = nil
     }
 
-    private static func nearestOption(to minutes: Double, in options: [Double]) -> Double {
+    private static func nearestOption(to minutes: Int, in options: [Int]) -> Int {
         options.min { first, second in
             abs(first - minutes) < abs(second - minutes)
         } ?? minutes
