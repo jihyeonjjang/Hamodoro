@@ -134,4 +134,40 @@ final class HamodoroTests: XCTestCase {
         XCTAssertEqual(store.todayStudyTimeText, "1시간 2분 집중했어요")
     }
 
+    func testUpdateFocusMinutesClampsRemainingSecondsWhileFocusIsRunning() throws {
+        let store = PomodoroTimerStore()
+        store.updateFocusMinutes(25)
+        store.startFocus()
+        store.tick()
+
+        store.updateFocusMinutes(5)
+
+        XCTAssertLessThanOrEqual(store.remainingSeconds, 5 * 60)
+        XCTAssertLessThanOrEqual(store.remainingProgress, 1.0)
+    }
+
+    func testUpdateFocusMinutesClampsRemainingSecondsWhilePausedMidFocus() throws {
+        let store = PomodoroTimerStore()
+        store.updateFocusMinutes(25)
+        store.startFocus()
+        store.tick()
+        store.pause()
+
+        store.updateFocusMinutes(5)
+
+        XCTAssertLessThanOrEqual(store.remainingSeconds, 5 * 60)
+    }
+
+    func testUpdateBreakMinutesClampsRemainingSecondsWhileBreakIsRunning() throws {
+        let store = PomodoroTimerStore()
+        store.updateBreakMinutes(30)
+        store.startBreak()
+        store.tick()
+
+        store.updateBreakMinutes(1)
+
+        XCTAssertLessThanOrEqual(store.remainingSeconds, 60)
+        XCTAssertLessThanOrEqual(store.remainingProgress, 1.0)
+    }
+
 }

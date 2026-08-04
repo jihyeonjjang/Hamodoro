@@ -135,6 +135,8 @@ final class PomodoroTimerStore: ObservableObject {
 
         if phase == .idle {
             remainingSeconds = focusDuration
+        } else if phase == .focus {
+            remainingSeconds = min(remainingSeconds, focusDuration)
         }
     }
 
@@ -142,7 +144,7 @@ final class PomodoroTimerStore: ObservableObject {
         breakMinutes = Self.nearestOption(to: minutes, in: Self.breakMinuteOptions)
         UserDefaults.standard.set(breakMinutes, forKey: DefaultsKey.breakMinutes)
 
-        if phase == .breakTime, !isRunning {
+        if phase == .breakTime {
             remainingSeconds = min(remainingSeconds, breakDuration)
         }
     }

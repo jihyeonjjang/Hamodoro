@@ -22,5 +22,6 @@ struct SettingsButton: View {
                 .frame(width: 24, height: 24)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("설정")
     }
 }

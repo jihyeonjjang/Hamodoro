@@ -20,5 +20,6 @@ struct HomeButton: View {
                 .frame(width: 24, height: 24)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("처음으로")
     }
 }
