@@ -20,12 +20,14 @@ struct SettingsView: View {
                     minutes: focusMinutesBinding,
                     options: PomodoroTimerStore.focusMinuteOptions
                 )
+                .disabled(timerStore.phase == .focus)
 
                 durationPicker(
                     title: "휴식",
                     minutes: breakMinutesBinding,
                     options: PomodoroTimerStore.breakMinuteOptions
                 )
+                .disabled(timerStore.phase == .breakTime)
             }
 
             Section("알림") {
