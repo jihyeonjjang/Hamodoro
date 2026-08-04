@@ -7,10 +7,37 @@
 
 import SwiftUI
 import AppKit
+import UserNotifications
 
 struct SettingsView: View {
     @ObservedObject var timerStore: PomodoroTimerStore
     @ObservedObject var appSettingsStore: AppSettingsStore
+
+    @State private var showSystemDeniedAlert = false
+    @State private var pendingDisableKind: NotificationKind?
+
+    private enum NotificationKind {
+        case focus
+        case breakTime
+
+        var confirmTitle: String {
+            switch self {
+            case .focus:
+                return "공부 알림을 받아볼 수 없어요"
+            case .breakTime:
+                return "휴식 알림을 받아볼 수 없어요"
+            }
+        }
+
+        var confirmMessage: String {
+            switch self {
+            case .focus:
+                return "지금 끄면 휴식이 끝나도 집중을 시작하라는 알림을 받을 수 없어요."
+            case .breakTime:
+                return "지금 끄면 집중이 끝나도 휴식을 시작하라는 알림을 받을 수 없어요."
+            }
+        }
+    }
 
     var body: some View {
         Form {
@@ -45,6 +72,30 @@ struct SettingsView: View {
         .onAppear {
             NSApp.activate(ignoringOtherApps: true)
         }
+        .task {
+            let status = await TimerNotificationManager.shared.currentAuthorizationStatus()
+            showSystemDeniedAlert = (status == .denied)
+        }
+        .alert("알림을 받을 수 없어요", isPresented: $showSystemDeniedAlert) {
+            Button("설정으로 이동") { openSystemNotificationSettings() }
+            Button("닫기", role: .cancel) {}
+        } message: {
+            Text("시스템 알림이 꺼져 있어 공부/휴식 알림을 받아볼 수 없어요. 설정에서 알림을 허용해 주세요.")
+        }
+        .alert(
+            pendingDisableKind?.confirmTitle ?? "",
+            isPresented: Binding(
+                get: { pendingDisableKind != nil },
+                set: { isPresented in
+                    if !isPresented { pendingDisableKind = nil }
+                }
+            )
+        ) {
+            Button("끄기", role: .destructive) { confirmDisable() }
+            Button("유지하기", role: .cancel) { pendingDisableKind = nil }
+        } message: {
+            Text(pendingDisableKind?.confirmMessage ?? "")
+        }
     }
 
     private var focusMinutesBinding: Binding<Int> {
@@ -64,15 +115,51 @@ struct SettingsView: View {
     private var focusStartNotificationBinding: Binding<Bool> {
         Binding(
             get: { appSettingsStore.focusStartNotificationEnabled },
-            set: { appSettingsStore.updateFocusStartNotificationEnabled($0) }
+            set: { handleNotificationToggle($0, kind: .focus) }
         )
     }
 
     private var breakStartNotificationBinding: Binding<Bool> {
         Binding(
             get: { appSettingsStore.breakStartNotificationEnabled },
-            set: { appSettingsStore.updateBreakStartNotificationEnabled($0) }
+            set: { handleNotificationToggle($0, kind: .breakTime) }
         )
+    }
+
+    private func handleNotificationToggle(_ newValue: Bool, kind: NotificationKind) {
+        guard !newValue else {
+            apply(true, kind: kind)
+            return
+        }
+
+        Task {
+            let status = await TimerNotificationManager.shared.currentAuthorizationStatus()
+            if TimerNotificationManager.isAuthorizationGranted(status) {
+                pendingDisableKind = kind
+            } else {
+                apply(false, kind: kind)
+            }
+        }
+    }
+
+    private func confirmDisable() {
+        guard let kind = pendingDisableKind else { return }
+        apply(false, kind: kind)
+        pendingDisableKind = nil
+    }
+
+    private func apply(_ isEnabled: Bool, kind: NotificationKind) {
+        switch kind {
+        case .focus:
+            appSettingsStore.updateFocusStartNotificationEnabled(isEnabled)
+        case .breakTime:
+            appSettingsStore.updateBreakStartNotificationEnabled(isEnabled)
+        }
+    }
+
+    private func openSystemNotificationSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.notifications") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     private var launchAtLoginBinding: Binding<Bool> {

@@ -23,6 +23,21 @@ final class TimerNotificationManager: NSObject, UNUserNotificationCenterDelegate
         }
     }
 
+    func currentAuthorizationStatus() async -> UNAuthorizationStatus {
+        await center.notificationSettings().authorizationStatus
+    }
+
+    static func isAuthorizationGranted(_ status: UNAuthorizationStatus) -> Bool {
+        switch status {
+        case .authorized, .provisional, .ephemeral:
+            return true
+        case .denied, .notDetermined:
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
     func notifyPhaseEnded(_ phase: PomodoroTimerStore.Phase) {
         let content = UNMutableNotificationContent()
         content.sound = .default
