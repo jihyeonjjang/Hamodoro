@@ -14,7 +14,8 @@ struct SettingsView: View {
     @ObservedObject var appSettingsStore: AppSettingsStore
 
     @State private var showSystemDeniedAlert = false
-    @State private var pendingDisableKind: NotificationKind?
+    @State private var showFocusDisableConfirm = false
+    @State private var showBreakDisableConfirm = false
 
     private enum NotificationKind {
         case focus
@@ -82,19 +83,17 @@ struct SettingsView: View {
         } message: {
             Text("시스템 알림이 꺼져 있어 공부/휴식 알림을 받아볼 수 없어요. 설정에서 알림을 허용해 주세요.")
         }
-        .alert(
-            pendingDisableKind?.confirmTitle ?? "",
-            isPresented: Binding(
-                get: { pendingDisableKind != nil },
-                set: { isPresented in
-                    if !isPresented { pendingDisableKind = nil }
-                }
-            )
-        ) {
-            Button("끄기", role: .destructive) { confirmDisable() }
-            Button("유지하기", role: .cancel) { pendingDisableKind = nil }
+        .alert(NotificationKind.focus.confirmTitle, isPresented: $showFocusDisableConfirm) {
+            Button("끄기", role: .destructive) { apply(false, kind: .focus) }
+            Button("유지하기", role: .cancel) {}
         } message: {
-            Text(pendingDisableKind?.confirmMessage ?? "")
+            Text(NotificationKind.focus.confirmMessage)
+        }
+        .alert(NotificationKind.breakTime.confirmTitle, isPresented: $showBreakDisableConfirm) {
+            Button("끄기", role: .destructive) { apply(false, kind: .breakTime) }
+            Button("유지하기", role: .cancel) {}
+        } message: {
+            Text(NotificationKind.breakTime.confirmMessage)
         }
     }
 
@@ -135,17 +134,16 @@ struct SettingsView: View {
         Task {
             let status = await TimerNotificationManager.shared.currentAuthorizationStatus()
             if TimerNotificationManager.isAuthorizationGranted(status) {
-                pendingDisableKind = kind
+                switch kind {
+                case .focus:
+                    showFocusDisableConfirm = true
+                case .breakTime:
+                    showBreakDisableConfirm = true
+                }
             } else {
                 apply(false, kind: kind)
             }
         }
-    }
-
-    private func confirmDisable() {
-        guard let kind = pendingDisableKind else { return }
-        apply(false, kind: kind)
-        pendingDisableKind = nil
     }
 
     private func apply(_ isEnabled: Bool, kind: NotificationKind) {
