@@ -16,6 +16,7 @@ struct SettingsView: View {
     @State private var showSystemDeniedAlert = false
     @State private var showFocusDisableConfirm = false
     @State private var showBreakDisableConfirm = false
+    @State private var isNotificationAuthorized = true
 
     private enum NotificationKind {
         case focus
@@ -62,6 +63,7 @@ struct SettingsView: View {
                 Toggle("집중 시작 알림", isOn: focusStartNotificationBinding)
                 Toggle("휴식 시작 알림", isOn: breakStartNotificationBinding)
             }
+            .disabled(!isNotificationAuthorized)
 
             Section("자동 실행") {
                 Toggle("로그인 시 햄모도로를 자동 실행", isOn: launchAtLoginBinding)
@@ -74,8 +76,12 @@ struct SettingsView: View {
             NSApp.activate(ignoringOtherApps: true)
         }
         .task {
-            let status = await TimerNotificationManager.shared.currentAuthorizationStatus()
-            showSystemDeniedAlert = (status == .denied)
+            showSystemDeniedAlert = await refreshNotificationAuthorization() == .denied
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            Task {
+                _ = await refreshNotificationAuthorization()
+            }
         }
         .alert("알림을 받을 수 없어요", isPresented: $showSystemDeniedAlert) {
             Button("설정으로 이동") { openSystemNotificationSettings() }
@@ -123,6 +129,13 @@ struct SettingsView: View {
             get: { appSettingsStore.breakStartNotificationEnabled },
             set: { handleNotificationToggle($0, kind: .breakTime) }
         )
+    }
+
+    @discardableResult
+    private func refreshNotificationAuthorization() async -> UNAuthorizationStatus {
+        let status = await TimerNotificationManager.shared.currentAuthorizationStatus()
+        isNotificationAuthorized = TimerNotificationManager.isAuthorizationGranted(status)
+        return status
     }
 
     private func handleNotificationToggle(_ newValue: Bool, kind: NotificationKind) {

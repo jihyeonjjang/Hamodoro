@@ -20,7 +20,11 @@ struct HamodoroApp: App {
         MenuBarExtra {
             HamodoroRootView(timerStore: timerStore)
         } label: {
-            MenuBarIconView(phase: timerStore.phase, isRunning: timerStore.isRunning)
+            MenuBarLabelView(
+                phase: timerStore.phase,
+                isRunning: timerStore.isRunning,
+                appSettingsStore: appSettingsStore
+            )
         }
         .menuBarExtraStyle(.window)
 
@@ -28,5 +32,11 @@ struct HamodoroApp: App {
             SettingsView(timerStore: timerStore, appSettingsStore: appSettingsStore)
         }
         .windowResizability(.contentSize)
+
+        Window("햄모도로 시작하기", id: HamodoroWindow.onboarding) {
+            OnboardingView(appSettingsStore: appSettingsStore)
+        }
+        .windowResizability(.contentSize)
+        .restorationBehavior(.disabled)
     }
 }

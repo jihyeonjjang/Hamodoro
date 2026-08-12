@@ -16,10 +16,15 @@ final class TimerNotificationManager: NSObject, UNUserNotificationCenterDelegate
 
     func configure() {
         center.delegate = self
-        center.requestAuthorization(options: [.alert, .sound]) { _, error in
-            if let error {
-                NSLog("Failed to request notification authorization: \(error)")
-            }
+    }
+
+    @discardableResult
+    func requestAuthorization() async -> Bool {
+        do {
+            return try await center.requestAuthorization(options: [.alert, .sound])
+        } catch {
+            NSLog("Failed to request notification authorization: \(error)")
+            return false
         }
     }
 

@@ -14,16 +14,19 @@ final class AppSettingsStore: ObservableObject {
     private enum DefaultsKey {
         static let focusStartNotificationEnabled = "focusStartNotificationEnabled"
         static let breakStartNotificationEnabled = "breakStartNotificationEnabled"
+        static let hasCompletedOnboarding = "hasCompletedOnboarding"
     }
 
     @Published private(set) var launchAtLoginEnabled: Bool
     @Published private(set) var focusStartNotificationEnabled: Bool
     @Published private(set) var breakStartNotificationEnabled: Bool
+    @Published private(set) var hasCompletedOnboarding: Bool
 
     init() {
         self.launchAtLoginEnabled = Self.isLaunchAtLoginEnabled
         self.focusStartNotificationEnabled = Self.isFocusStartNotificationEnabled
         self.breakStartNotificationEnabled = Self.isBreakStartNotificationEnabled
+        self.hasCompletedOnboarding = Self.isOnboardingCompleted
     }
 
     static var isFocusStartNotificationEnabled: Bool {
@@ -32,6 +35,10 @@ final class AppSettingsStore: ObservableObject {
 
     static var isBreakStartNotificationEnabled: Bool {
         bool(forKey: DefaultsKey.breakStartNotificationEnabled, defaultValue: true)
+    }
+
+    static var isOnboardingCompleted: Bool {
+        bool(forKey: DefaultsKey.hasCompletedOnboarding, defaultValue: false)
     }
 
     func updateFocusStartNotificationEnabled(_ isEnabled: Bool) {
@@ -56,6 +63,11 @@ final class AppSettingsStore: ObservableObject {
         }
 
         launchAtLoginEnabled = Self.isLaunchAtLoginEnabled
+    }
+
+    func markOnboardingCompleted() {
+        UserDefaults.standard.set(true, forKey: DefaultsKey.hasCompletedOnboarding)
+        hasCompletedOnboarding = true
     }
 
     private static var isLaunchAtLoginEnabled: Bool {

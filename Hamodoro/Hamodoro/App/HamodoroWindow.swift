@@ -7,4 +7,5 @@
 
 enum HamodoroWindow {
     static let settings = "settings"
+    static let onboarding = "onboarding"
 }
