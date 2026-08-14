@@ -36,6 +36,12 @@ struct OnboardingView: View {
         .onAppear {
             NSApp.activate(ignoringOtherApps: true)
         }
+        .onDisappear {
+            // Restore accessory (no Dock icon) mode once onboarding closes, however it
+            // closes — matches the .regular switch MenuBarLabelView makes to let this
+            // window become key in the first place.
+            NSApp.setActivationPolicy(.accessory)
+        }
     }
 
     private var notificationsStep: some View {

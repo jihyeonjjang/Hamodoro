@@ -15,12 +15,14 @@ struct MenuBarLabelView: View {
 
     var body: some View {
         MenuBarIconView(phase: phase, isRunning: isRunning)
-            .task {
+            .onAppear {
                 guard !appSettingsStore.hasCompletedOnboarding else { return }
-                // Don't call NSApp.activate here — for a brand-new window this races
-                // window creation and can drop the openWindow request entirely on an
-                // LSUIElement (accessory) app. OnboardingView.onAppear activates once
-                // the window actually exists, matching the SettingsButton pattern.
+                // As an LSUIElement (accessory, no Dock icon) app, macOS won't let a
+                // window become key/focused at all — switch to .regular momentarily so
+                // the onboarding window can actually appear. OnboardingView restores
+                // .accessory once onboarding is dismissed.
+                NSApp.setActivationPolicy(.regular)
+                NSApp.activate(ignoringOtherApps: true)
                 openWindow(id: HamodoroWindow.onboarding)
             }
     }
