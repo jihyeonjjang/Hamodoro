@@ -44,7 +44,7 @@ struct OnboardingView: View {
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(HamodoroDesign.Color.primaryText)
 
-            Text("집중이나 휴식이 끝날 때 알림을 받고 싶으시다면, 알림을 허용해 주세요.")
+            Text("집중이나 휴식이 끝날 때 알림을 받고 싶으시다면, 아래 버튼을 누르고 우측 상단에서 허용을 눌러주세요.")
                 .font(.system(size: 13))
                 .foregroundStyle(HamodoroDesign.Color.secondaryText)
                 .multilineTextAlignment(.center)
