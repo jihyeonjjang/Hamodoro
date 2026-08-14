@@ -17,7 +17,10 @@ struct MenuBarLabelView: View {
         MenuBarIconView(phase: phase, isRunning: isRunning)
             .task {
                 guard !appSettingsStore.hasCompletedOnboarding else { return }
-                NSApp.activate(ignoringOtherApps: true)
+                // Don't call NSApp.activate here — for a brand-new window this races
+                // window creation and can drop the openWindow request entirely on an
+                // LSUIElement (accessory) app. OnboardingView.onAppear activates once
+                // the window actually exists, matching the SettingsButton pattern.
                 openWindow(id: HamodoroWindow.onboarding)
             }
     }
